@@ -2,9 +2,9 @@ name: Python CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
   pull_request:
-    branches: [ "**" ]
+    branches: ["**"]
 
 jobs:
   tests:
@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,10 +22,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Show Python and pip
+        run: |
+          python -V
+          pip -V
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Show project tree and pip packages (debug)
+        run: |
+          pwd
+          ls -la
+          echo "-----"
+          find . -maxdepth 3 -type f | sort
+          echo "-----"
+          pip list
+
       - name: Run tests
-        run: pytest -q
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python -m pytest -q -vv
